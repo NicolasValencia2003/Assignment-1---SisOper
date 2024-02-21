@@ -35,58 +35,100 @@ struct Registers {
     int D8;
     int D9;
     int D10;
+    int ICR;
+    int MAR;
+    int MDR;
+    int UC;
 };
+
+void showRegisters(struct Registers * registers){
+
+     
+    printf("D1: %d\n",registers->D1);
+    printf("D2: %d\n",registers->D2);
+    printf("D3: %d\n",registers->D3);
+    printf("D4: %d\n",registers->D4);
+    printf("D5: %d\n",registers->D5);
+    printf("D6: %d\n",registers->D6);
+    printf("D7: %d\n",registers->D7);
+    printf("D8: %d\n",registers->D8);
+    printf("D9: %d\n",registers->D9);
+    printf("D10: %d\n",registers->D10);
+    printf("ICR: %d\n",registers->ICR);
+    printf("MAR: %d\n",registers->MAR);
+    printf("MDR: %d\n",registers->MDR);
+    printf("UC: %d\n",registers->UC);
+
+
+}
 
 
 int getRegisterValue(struct Registers registers, char * registerName){
 
     int value = -1;
 
-    if (registerName == "D1"){
+    if (!strcmp(registerName,"D1")){
         value = registers.D1;
     }
-    else if (registerName == "D2")
+    else if (!strcmp(registerName,"D2"))
     {
         value = registers.D2;
     }
-      else if (registerName == "D3")
+      else if (!strcmp(registerName,"D3"))
     {
         value = registers.D3;
     }
-      else if (registerName == "D4")
+      else if (!strcmp(registerName,"D4"))
     {
         value = registers.D4;
     }
-      else if (registerName == "D5")
+      else if (!strcmp(registerName,"D5"))
     {
         value = registers.D5;
     }
-      else if (registerName == "D6")
+      else if (!strcmp(registerName,"D6"))
     {
         value = registers.D6;
     }
-      else if (registerName == "D7")
+      else if (!strcmp(registerName,"D7"))
     {
         value = registers.D7;
     }
-      else if (registerName == "D8")
+      else if (!strcmp(registerName,"D8"))
     {
         value = registers.D8;
     }
-      else if (registerName == "D9")
+      else if (!strcmp(registerName,"D9"))
     {
         value = registers.D9;
     }
-      else if (registerName == "D10")
+      else if (!strcmp(registerName,"D10"))
     {
         value = registers.D10;
     }
+         else if (!strcmp(registerName,"ICR"))
+    {
+        value = registers.ICR;
+    }
+      else if (!strcmp(registerName,"MAR"))
+    {
+        value = registers.MAR;
+    }
+      else if (!strcmp(registerName,"MDR"))
+    {
+        value = registers.MDR;
+    }
+      else if (!strcmp(registerName,"UC"))
+    {
+        value = registers.UC;
+    }
 
-    return value
+
+    return value;
 }
 
 // Función para leer las instrucciones desde un archivo de texto
-void readInstructions(char *filename, struct InstructionData *instructions, int *instructionCount) {
+void readInstructions(char *filename, struct InstructionData * instructions, int  * instructionCount) {
     FILE *file = fopen(filename, "r");
 
     if (file == NULL) {
@@ -96,17 +138,21 @@ void readInstructions(char *filename, struct InstructionData *instructions, int 
 
     char line[256];
     *instructionCount = 0;
-
+   
     while (fgets(line, sizeof(line), file)) {
         char *token;
         //obtengo la linea
-        char *remaining = line;
-        int data1 = 0, data2 = 0, data3 = 0,data4 = 0;
+        char * remaining = line;
+        char * data1; 
+        char * data2; 
+        char * data3;
+        char * data4;
 
         // Se obtiene la instrucción, divido la linea para obtener la primera parte de la instruccion
-        token = strtok_r(remaining, " ", &remaining);
+        token = strtok(remaining, " ");
 
-
+       //printf("------%s-------\n",token);
+        
         if (strcmp(token, "SET") == 0) {
             instructions[*instructionCount].instruction = SET;
         } else if (strcmp(token, "LDR") == 0) {
@@ -129,17 +175,18 @@ void readInstructions(char *filename, struct InstructionData *instructions, int 
 
         // Se obtienen los datos adicionales, nuevamente dividiendo con el delimitador de espacio
 
-            data1 = strtok_r(remaining, " ", &remaining);
+            data1 = strdup(strtok(NULL, " "));
+            //printf("data 1: %s\n",data1);
 
-            data2 = strtok_r(remaining, " ", &remaining);
+            data2 = strdup(strtok(NULL, " "));
+            //printf("data 2: %s\n",data2);
             
-            data3 = strtok_r(remaining, " ", &remaining);
+            data3 = strdup(strtok(NULL, " "));
+            //printf("data 3: %s\n",data3);
       
-            data4 = strtok_r(remaining, " ", &remaining);
+            data4 = strdup(strtok(NULL, " "));
+            //printf("data 4: %s\n",data4);
      
-
-
-
         // Se almacenan los datos en la estructura
         //Todo se almacena en formato char *, luego se convertiran a int si es algun valor entero o immediate, pero
         //en cualquier otro caso data1,data2,data3,data4 seran nombres de registros
@@ -148,19 +195,28 @@ void readInstructions(char *filename, struct InstructionData *instructions, int 
         instructions[*instructionCount].data3 = data3;
         instructions[*instructionCount].data4 = data4;
 
+        //printf("data1: %s\n",instructions[*instructionCount].data1);
+
         (*instructionCount)++;
+
     }
+
+
 
     fclose(file);
 }
 
 // Función para imprimir la memoria y los registros
-void showMemoryAndRegisters(int *memory, int accumulator) {
-    printf("Memoria:\n");
+void showMemoryandRegisters(int *memory, int accumulator, struct Registers * registers) {
+    printf("------Memoria------\n");
 
-    for (int i = 0; i < 10; i++) {
-        printf("D%d: %d\n", i, memory[i]);
+    for (int i = 0; i < 31; i++) {
+        printf("%d ",memory[i]);
     }
+
+    printf("\n-----Registros-----\n");
+
+    showRegisters(registers);
 
     printf("Registro acumulador: %d\n", accumulator);
 }
@@ -168,40 +224,80 @@ void showMemoryAndRegisters(int *memory, int accumulator) {
 // Función que ejecuta una instrucción
 void executeInstruction(struct InstructionData instruction, int *memory, struct Registers registers, int *accumulator) {
 
+    int address = -1;
+    int address1 = -1;
+    int address2 = -1;
+    int address3 = -1;
+    int value = -1;
+
+
+    //printf("Executing: %d\n",instruction.instruction);
     switch (instruction.instruction) {
         case SET:
-            int address = getRegisterValue(registers,instruction.data1);
-            int value = atoi(instruction.data2);
-            if (value != -1){memory[address] = value}
+            address = getRegisterValue(registers,instruction.data1);
+            value = atoi(instruction.data2);
+            //printf("value: %d\n",value);
+            if (address != -1){memory[address] = value;}
             break;
-            /*
+        
         case LDR:
-            *accumulator = memory[instruction.data1];
+            address = getRegisterValue(registers,instruction.data1);
+            if (address != -1){
+                *accumulator = memory[address];}
             break;
+
         case ADD:
-            if (instruction.data3 == 0) {
-                *accumulator += memory[instruction.data1];
-            } else {
-                memory[instruction.data3] = *accumulator + memory[instruction.data1];
+            if (!strcmp(instruction.data2,"NULL") && !strcmp(instruction.data3,"NULL")) {
+                int address = getRegisterValue(registers,instruction.data1);
+                if (address != -1){*accumulator += memory[address];}
+            } 
+            else if (!strcmp(instruction.data3,"NULL")) {
+                address1 = getRegisterValue(registers,instruction.data1);
+                address2 = getRegisterValue(registers,instruction.data2);
+                if (address1 != -1 && address2 != -1){
+                    *accumulator += memory[address1];
+                    *accumulator += memory[address2];
+                }
+            }
+            else{
+                address1 = getRegisterValue(registers,instruction.data1);
+                address2 = getRegisterValue(registers,instruction.data2);
+                address3 = getRegisterValue(registers,instruction.data3);
+                if (address1 != -1 && address2 != -1 && address3 != -1){
+                    *accumulator += memory[address1];
+                    *accumulator += memory[address2];
+                    memory[address3] = *accumulator;
+            }
             }
             break;
+                  
         case INC:
-            memory[instruction.data1]++;
+            address = getRegisterValue(registers,instruction.data1);
+            if (address != -1){
+                memory[address] += 1;}
             break;
+           
         case DEC:
-            memory[instruction.data1]--;
+            address = getRegisterValue(registers,instruction.data1);
+            if (address != -1){
+                memory[address] -= 1;}
             break;
+            
         case STR:
-            memory[instruction.data1] = *accumulator;
+            address = getRegisterValue(registers,instruction.data1);
+            if (address != -1){
+                memory[address] = *accumulator;}
             break;
+             
         case SHW:
-            if (instruction.data1 == 8) {
-                printf("Memoria[%d]: %d\n", instruction.data2, memory[instruction.data2]);
+            if (!strcmp(instruction.data1,"ACC")) {
+                printf("[%s]: %d\n", instruction.data1, *accumulator);
             } else {
-                printf("D%d: %d\n", instruction.data1, memory[instruction.data1]);
+                value = getRegisterValue(registers,instruction.data1);
+                if (value != -1){printf("[%s]: %d\n", instruction.data1, value);}
             }
             break;
-            */
+            
         case PAUSE:
             break;
         case END:
@@ -212,29 +308,28 @@ void executeInstruction(struct InstructionData instruction, int *memory, struct 
 int main() {
     //aceptaremos programas con menos de 100 lines
     struct InstructionData instructions[100];
+    //Cantidad de instrucciones
     int instructionCount;
     //Este arreglo sera como la memoria principal
     int memory[30];
     //Aqui inicializo mis registros
-    struct Registers registers = { .D1 = 1, .D2 = 2, .D3 = 3, .D4 = 4, .D5 = 5, .D6 = 6, .D7 = 7, .D8 = 8, .D9 = 9, .D10 = 10};
+    struct Registers registers = { .D1 = 1, .D2 = 2, .D3 = 3, .D4 = 4, .D5 = 5, .D6 = 6, .D7 = 7, .D8 = 8, .D9 = 9, 
+    .D10 = 10, .ICR = 12, .MAR = 13, .MDR = 14, .UC = 15};
     int accumulator = 0;
 
     //inicializamos la memoria 
     for (int i = 0; i < 10; i++) {
         memory[i] = 0;
     }
-
     //voy a leer todas las lineas del archivo
     readInstructions("programa1.txt", instructions, &instructionCount);
-
-
-
-
+   
     for (int i = 0; i < instructionCount; i++) {
+        
         executeInstruction(instructions[i], memory, registers, &accumulator);
     }
-
-    showMemoryAndRegisters(memory, accumulator);
+ 
+    showMemoryandRegisters(memory, accumulator, &registers);
 
     return 0;
 }
